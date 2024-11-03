@@ -41,7 +41,7 @@ class Bsky(commands.Cog):
                 json.dump({"CHANNEL_ID": None, "BLSKY_USER_HANDLE": None}, f)
             return {"CHANNEL_ID": None, "BLSKY_USER_HANDLE": None}
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(minutes=5)
     async def check_new_posts(self):
         # Ensure the user handle and channel ID are set
         if not self.user_handle or not self.channel_id:
