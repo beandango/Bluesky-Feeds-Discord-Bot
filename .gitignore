@@ -2,7 +2,6 @@
 __pycache__
 *.pyc
 *.pyo
-config.json
 *.spec
 .venv
 hook-discord.py
