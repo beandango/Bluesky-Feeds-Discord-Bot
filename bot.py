@@ -33,14 +33,6 @@ async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
     await bot.change_presence(activity=discord.Game(name="with rats"))
 
-@bot.command()
-async def sync(ctx):
-    if ctx.message.author.guild_permissions.administrator:
-        await bot.tree.sync()
-        synced = await bot.tree.sync()
-        await ctx.message.delete()
-        print(f"Synced {len(synced)} commands")
-
 async def main():
     async with bot:
         await load()
