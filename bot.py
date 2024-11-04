@@ -1,15 +1,15 @@
 import os
 import asyncio
-from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 import sys
 import ctypes
+from config import load_config
 
 ctypes.windll.kernel32.SetConsoleTitleW("Bluesky Posts")
 
-
-load_dotenv()
+config = load_config()
+TOKEN = config["TOKEN"]
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=discord.Intents.all())
 
@@ -36,6 +36,6 @@ async def on_ready():
 async def main():
     async with bot:
         await load()
-        await bot.start(os.getenv('TOKENDANGO'))
+        await bot.start(TOKEN)
 
 asyncio.run(main())

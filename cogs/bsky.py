@@ -6,6 +6,7 @@ import pytz
 import re
 import json
 import requests
+from config import load_config, get_config_value, update_config_value
 
 CONFIG_FILE = "config.json"
 PUBLIC_API_BASE_URL = "https://public.api.bsky.app/xrpc"  # public bsky api endpoint
@@ -13,43 +14,34 @@ PUBLIC_API_BASE_URL = "https://public.api.bsky.app/xrpc"  # public bsky api endp
 class Bsky(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.user_handle = None
-        self.channel_id = None
+        self.user_handle = get_config_value("BLSKY_USER_HANDLE")
+        self.channel_id = get_config_value("CHANNEL_ID")
         self.last_post_id = None
+        self.just_started = True
         
         # Load configuration on initialization
         self.load_config()
-        
+
         # Start checking for new posts
         self.check_new_posts.start()
 
     def load_config(self):
         # Load the configuration to get channel ID and user handle
-        config = self.load_config_json()
+        config = load_config()
         self.channel_id = config.get("CHANNEL_ID")
         self.user_handle = config.get("BLSKY_USER_HANDLE")  # Store user handle for public access
     
 
-    @staticmethod
-    def load_config_json():
-        try:
-            with open(CONFIG_FILE, "r") as f:
-                return json.load(f)
-        except FileNotFoundError:
-            print("Config file not found. Creating a new one.")
-            with open(CONFIG_FILE, "w") as f:
-                json.dump({"CHANNEL_ID": None, "BLSKY_USER_HANDLE": None}, f)
-            return {"CHANNEL_ID": None, "BLSKY_USER_HANDLE": None}
-
     @tasks.loop(minutes=5)
     async def check_new_posts(self):
+        print("Checking for new posts...")
         # Ensure the user handle and channel ID are set
         if not self.user_handle or not self.channel_id:
             print("User handle or channel ID not set. Please run the setup command.")
             return
-
         # Fetch and send the latest post if it’s new
         channel = self.bot.get_channel(self.channel_id)
+        print(channel)
         if channel:
             await self.send_latest_post(channel, force=False)
 
@@ -59,6 +51,13 @@ class Bsky(commands.Cog):
         If force is True, it bypasses the last_post_id check to always fetch and send the post.
         """
         try:
+
+            # Skip sending if this is the first check after startup
+            if self.just_started:
+                self.just_started = False  # Reset after the first check
+                print("Skipping the first post after startup.")
+                return
+
             # Make an unauthenticated request to get the author's feed
             url = f"{PUBLIC_API_BASE_URL}/app.bsky.feed.getAuthorFeed"
             params = {

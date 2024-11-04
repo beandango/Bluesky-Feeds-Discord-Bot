@@ -1,29 +1,12 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import os
-import json
 import re
-
-CONFIG_FILE = "config.json"
+from config import get_config_value, update_config_value  # Import functions from config.py
 
 class Setup(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
-    def load_config_json(self):
-        try:
-            with open(CONFIG_FILE, "r") as f:
-                return json.load(f)
-        except FileNotFoundError:
-            print("Config file not found. Creating a new one.")
-            with open(CONFIG_FILE, "w") as f:
-                json.dump({"CHANNEL_ID": None, "BLSKY_USER_HANDLE": None}, f)
-            return {"CHANNEL_ID": None, "BLSKY_USER_HANDLE": None}
-
-    def save_config_json(self, config):
-        with open(CONFIG_FILE, "w") as f:
-            json.dump(config, f, indent=4)
 
     @app_commands.command(name="setup", description="Set up the bot configuration (admin only)")
     @app_commands.guild_only()
@@ -56,10 +39,8 @@ class Setup(commands.Cog):
                 return
 
             # Update channel ID in config.json
-            config = self.load_config_json()
-            config["CHANNEL_ID"] = channel_id
-            self.save_config_json(config)
-
+            update_config_value("CHANNEL_ID", channel_id)
+            
             # Reload the config in Bsky cog
             bsky_cog = self.bot.get_cog("Bsky")
             if bsky_cog:
@@ -83,9 +64,7 @@ class Setup(commands.Cog):
             user_handle = handle_msg.content.strip()
 
             # Update user handle in config.json
-            config = self.load_config_json()
-            config["BLSKY_USER_HANDLE"] = user_handle
-            self.save_config_json(config)
+            update_config_value("BLSKY_USER_HANDLE", user_handle)
 
             # Reload the config in Bsky cog
             bsky_cog = self.bot.get_cog("Bsky")
@@ -100,7 +79,6 @@ class Setup(commands.Cog):
         except Exception as e:
             await dm_channel.send("Setup failed. Please try again.")
             print(f"Error during setup (Bluesky handle): {e}")
-
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Setup(bot))
