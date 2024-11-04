@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import re
-from config import get_config_value, update_config_value  # Import functions from config.py
+from config import update_config_value  # Import functions from config.py
 
 class Setup(commands.Cog):
     def __init__(self, bot: commands.Bot):

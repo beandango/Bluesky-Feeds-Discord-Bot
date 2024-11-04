@@ -4,9 +4,8 @@ from discord.ext import commands, tasks
 from datetime import datetime
 import pytz
 import re
-import json
 import requests
-from config import load_config, get_config_value, update_config_value
+from config import load_config, get_config_value
 
 CONFIG_FILE = "config.json"
 PUBLIC_API_BASE_URL = "https://public.api.bsky.app/xrpc"  # public bsky api endpoint
