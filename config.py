@@ -16,7 +16,8 @@ def load_config():
         save_config(config)
         print(f"A new {CONFIG_FILE} file has been created.")
         print("Please add your bot token to the 'TOKEN' field in config.json.")
-        input("Press Enter to exit once you've updated the configuration.")
+        print("You can also add in the channel_id and blsky_user_handle fields, otherwise, that can be setup with the bot's /setup command.")
+        input("Press Enter to exit. Start again once you've updated the configuration.")
         sys.exit()  # Close the program after informing the user
 
     with open(CONFIG_FILE, "r") as f:
