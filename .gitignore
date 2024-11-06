@@ -7,3 +7,4 @@ __pycache__
 hook-discord.py
 /build
 /dist
+.DS_Store
